@@ -1,4 +1,4 @@
-﻿using Microsoft.VisualStudio;
+using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using System;
@@ -31,6 +31,22 @@ namespace YouML.Tools
                 return string.Empty;
             }
 
+        }
+
+        public static string GetSelectedFileName()
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            IVsHierarchy hierarchy = null;
+            uint itemid = VSConstants.VSITEMID_NIL;
+
+            if (!IsSingleProjectItemSelection(out hierarchy, out itemid)) return null;
+
+            string itemFullPath = null;
+            ((IVsProject)hierarchy).GetMkDocument(itemid, out itemFullPath);
+
+            if (string.IsNullOrEmpty(itemFullPath)) return null;
+
+            return Path.GetFileName(itemFullPath);
         }
 
         public static bool IsSingleProjectItemSelection(out IVsHierarchy hierarchy, out uint itemId)
