@@ -16,13 +16,16 @@ namespace YouML
 {
     public class YouMLToolWindowViewModel : INotifyPropertyChanged
     {
-        public YouMLToolWindowViewModel()
+        private string _csFileName;
+        public YouMLToolWindowViewModel(string csFileName)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
+            _csFileName = csFileName;
 
             try
             {
                 var fileCode = Tools.FileUtils.GetFileContent();
+                //string csFileName = Tools.FileUtils.GetSelectedFileName(); // 假设这个方法返回选中的文件名
 
                 if (fileCode.Equals(string.Empty)) return;
 
@@ -33,7 +36,7 @@ namespace YouML
                 var renderFactory = new RendererFactory();
 
                 var plantUmlRenderer = renderFactory.CreateRenderer();
-                OpenPlantUmlCodeInNotepad(plantCode);
+                OpenPlantUmlCodeInNotepad(plantCode, _csFileName);
 
                 using (var mStream = new MemoryStream(plantUmlRenderer.Render(plantCode, OutputFormat.Png)))
                 {
@@ -46,9 +49,9 @@ namespace YouML
             }
         }
 
-        public void OpenPlantUmlCodeInNotepad(string plantCode)
+        public void OpenPlantUmlCodeInNotepad(string plantCode, string csFileName)
         {
-            string tempFilePath = Path.Combine(Path.GetTempPath(), "plantuml_code.txt");
+            string tempFilePath = Path.Combine(Path.GetTempPath(), $"{Path.GetFileNameWithoutExtension(csFileName)}_plantuml_code.txt");
             File.WriteAllText(tempFilePath, plantCode);
 
             Process.Start(new ProcessStartInfo
