@@ -1,4 +1,4 @@
-﻿using Microsoft.Win32;
+using Microsoft.Win32;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Windows;
@@ -10,6 +10,7 @@ namespace YouML
 {
     public partial class YouMLToolWindowControl
     {
+        private string _csFileName; // 添加一个成员变量来存储文件名
         /// <summary>
         /// Initializes a new instance of the <see cref="YouMLToolWindowControl"/> class.
         /// </summary>
@@ -17,7 +18,14 @@ namespace YouML
         {
             this.InitializeComponent();
 
-            DataContext = new YouMLToolWindowViewModel();
+
+            _csFileName = Tools.FileUtils.GetSelectedFileName(); // 获取选中的文件名
+            if (!string.IsNullOrEmpty(_csFileName))
+            {
+                DataContext = new YouMLToolWindowViewModel(_csFileName);
+            }
+
+
         }
 
         private void SaveToPng(string fileName)
@@ -37,7 +45,7 @@ namespace YouML
                 Filter = "PNG Image|*.png",
                 Title = "Save an Image File",
                 RestoreDirectory = true,
-                FileName = "YouML_image.png"
+                FileName = $"{Path.GetFileNameWithoutExtension(_csFileName)}_YouML_image.png" // 使用CS文件名
             };
 
             saveFileDialog.ShowDialog();
@@ -47,5 +55,6 @@ namespace YouML
                 SaveToPng(saveFileDialog.FileName);
             }
         }
+
     }
 }
